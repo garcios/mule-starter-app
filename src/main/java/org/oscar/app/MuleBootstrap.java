@@ -1,4 +1,4 @@
-package org.taptech.app;
+package org.oscar.app;
 
 import java.util.LinkedList;
 import java.util.List;
