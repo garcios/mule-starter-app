@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.3.6.RELEASE</version>
+    </parent>
+    
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.scb.api</groupId>
+	<artifactId>mule-starter-app</artifactId>
+	<version>1.0</version>
+	<packaging>jar</packaging>
+	<name>Mule Starter Application</name>
+
+	<properties>
+		<java.version>1.7</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<mule.version>3.7.0</mule.version>
+		<mule.tools.version>1.1</mule.tools.version>
+		<apikit.version>1.7.0</apikit.version>
+		<spring.boot.version>1.3.6.RELEASE</spring.boot.version>
+		<start-class>org.taptech.app.MuleBootstrap</start-class>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <!-- 
+                <version>1.5.6.RELEASE</version>
+                 -->
+                <configuration>
+                    <mainClass>${start-class}</mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<!-- 
+				<version>3.5.1</version>
+				 -->
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+			 
+			<plugin>
+				<groupId>org.mule.tools.maven</groupId>
+				<artifactId>mule-app-maven-plugin</artifactId>
+				<version>${mule.tools.version}</version>
+				<extensions>true</extensions>
+				<configuration>
+					<copyToAppsDirectory>true</copyToAppsDirectory>
+					<inclusions>
+						<inclusion>
+							<groupId>org.mule.modules</groupId>
+							<artifactId>mule-module-apikit</artifactId>
+						</inclusion>
+					</inclusions>
+				</configuration>
+			</plugin>
+			 
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<!-- 
+				<version>2.2.1</version>
+				 -->
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>project</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<!-- 
+				<version>1.7</version>
+				 -->
+				<executions>
+					<execution>
+						<id>add-resource</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>add-resource</goal>
+						</goals>
+						<configuration>
+							<resources>
+								<resource>
+									<directory>src/main/app/</directory>
+								</resource>
+								<resource>
+									<directory>mappings/</directory>
+								</resource>
+								<resource>
+									<directory>src/main/api/</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<!-- Mule Dependencies -->
+	<dependencies>
+	   <!-- 
+		<dependency>
+			<groupId>com.scb.ms</groupId>
+			<artifactId>clientbehaviour-common</artifactId>
+			<version>1.0.2</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-log4j12</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.scb.mule</groupId>
+			<artifactId>scb-kafka-outbound-connector</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.scb.mule</groupId>
+			<artifactId>scb-kafka-inbound-connector</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+     -->
+
+       <!-- 
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			</dependency>
+         -->
+		
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-pool2</artifactId>
+			</dependency>
+
+        
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+		</dependency>
+		 
+		
+		<!-- Xml configuration -->
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-spring-config</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- Mule Transports -->
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-file</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-http</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-jdbc</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-jms</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-vm</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-amqp</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- Mule Modules -->
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-scripting</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-xml</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- for testing -->
+		<dependency>
+			<groupId>org.mule.tests</groupId>
+			<artifactId>mule-tests-functional</artifactId>
+			<version>${mule.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-apikit</artifactId>
+			<version>${apikit.version}</version>
+			<exclusions>
+                <exclusion>
+					<artifactId>slf4j-log4j12</artifactId>
+					<groupId>org.slf4j</groupId>
+                </exclusion>
+				<exclusion>
+					<groupId>org.mule.transports</groupId>
+					<artifactId>mule-transport-http</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.mule.modules</groupId>
+					<artifactId>mule-module-json</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.xml.bind</groupId>
+					<artifactId>jaxb-impl</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>wsdl4j</groupId>
+					<artifactId>wsdl4j</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.mail</groupId>
+					<artifactId>mailapi</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<!-- 
+		<dependency>
+             <groupId>com.scb.dicovery</groupId>
+             <artifactId>ribbon-utility</artifactId>
+             <version>0.0.1</version>
+        </dependency>
+		 -->
+		
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <!-- 
+            <version>${spring.boot.version}</version>
+             -->
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                    <groupId>org.springframework.boot</groupId>
+                </exclusion>
+                <exclusion>
+					<artifactId>slf4j-log4j12</artifactId>
+					<groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <!-- 
+            <version>${spring.boot.version}</version>
+             -->
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                    <groupId>org.springframework.boot</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j</artifactId>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+					<artifactId>slf4j-log4j12</artifactId>
+					<groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        
+        <!-- 
+        <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		 -->
+  	
+		<dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-jersey</artifactId>
+            <version>${mule.version}</version>
+            <scope>compile</scope>
+        </dependency>
+  
+  		<dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-management</artifactId>
+            <version>${mule.version}</version>
+            <scope>compile</scope>
+        </dependency>
+  
+  
+       
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-json</artifactId>
+            <version>${mule.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.mule.transports</groupId>
+            <artifactId>mule-transport-sftp</artifactId>
+            <version>${mule.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.grizzly</groupId>
+            <artifactId>grizzly-http</artifactId>
+            <version>2.3.19</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-client</artifactId>
+            <version>${mule.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>javax.el-api</artifactId>
+            <version>3.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-annotations</artifactId>
+            <version>${mule.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.grizzly</groupId>
+            <artifactId>grizzly-core</artifactId>
+            <version>2.3.19</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <!-- 
+        <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-config-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-eureka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-ribbon</artifactId>
+		</dependency>
+		 -->
+		<dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+  
+	</dependencies>
+	
+	<!--  
+	<dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>Brixton.SR4</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+   	</dependencyManagement>
+   	-->
+   	
+<repositories>
+    <repository>
+        <id>mulesoft-releases</id>
+        <name>MuleSoft Repository</name>
+        <url>http://repository.mulesoft.org/releases/</url>
+        <layout>default</layout>
+    </repository>
+    <repository>
+        <id>mulesoft-snapshots</id>
+        <name>MuleSoft Snapshot Repository</name>
+        <url>http://repository.mulesoft.org/snapshots/</url>
+        <layout>default</layout>
+    </repository>
+
+</repositories>
+</project>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" 
+  xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" 
+  xmlns:http="http://www.mulesoft.org/schema/mule/http" 
+  xmlns:context="http://www.springframework.org/schema/context" 
+  xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+  xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" 
+  xmlns:json="http://www.mulesoft.org/schema/mule/json" 
+  xmlns:amqp="http://www.mulesoft.org/schema/mule/amqp" 
+  xmlns:vm="http://www.mulesoft.org/schema/mule/vm" 
+  xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" 
+  xmlns:spring="http://www.springframework.org/schema/beans" 
+  xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd  
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/amqp http://www.mulesoft.org/schema/mule/amqp/current/mule-amqp.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+
+
+    <apikit:config name="test-v1-config" raml="test-v1.raml" consoleEnabled="true" consolePath="console" doc:name="Router" />
+ 
+    <http:listener-config name="httpListenerConfig" host="0.0.0.0" port="8080" doc:name="HTTP Listener Configuration">
+        <http:worker-threading-profile threadWaitTimeout="30000" maxThreadsActive="100" maxBufferSize="50" />
+    </http:listener-config>
+    
+    
+    
+    
+    <!-- AMQP configurations -->
+    <amqp:connector name="amqp_config"
+       host="188.166.186.228"
+       port="5672"
+       virtualHost="/"
+       username="guest"
+       password="guest"
+    />
+    
+    <amqp:endpoint name="test_queue"
+                   exchangeName="amq.direct"
+                   queueName="test_queue"
+                   routingKey="test_queue"
+                   exchangeType="direct"
+                   responseTimeout="10000"
+                   queueDurable="true"
+                   doc:name="AMQP"
+           
+    />              
+    
+    <vm:endpoint name="flowReturnedMessageChannel" path="flow.returnedMessages" />
+    
+    <!-- Start of the flows -->
+    <flow name="main">
+        <http:listener config-ref="httpListenerConfig" path="/api/v1/test/*" doc:name="HTTP" />
+        <apikit:router config-ref="test-v1-config" doc:name="APIkit Router" />
+        <exception-strategy ref="apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy" />
+    </flow>
+
+
+    <flow name="get:/start:test-v1-config">
+    	
+		<logger message="Entry point for get:/start" level="INFO" doc:name="Logger"/>
+		 
+		 <set-variable variableName="myMessage" value="#[message.inboundProperties.'http.query.params'.myMessage]" doc:name="Variable"/>
+		 
+		 <set-payload value="#[myMessage]" doc:name="Set Payload" />
+		
+		<logger message="sending - #[myMessage]" level="INFO" doc:name="Logger"/>
+		
+		 <amqp:return-handler>      
+               <vm:outbound-endpoint ref="flowReturnedMessageChannel" />
+         </amqp:return-handler>
+  
+  
+		 <amqp:outbound-endpoint responseTimeout="10000"
+		                         doc:name="Send Direct Message"
+		                         connector-ref="amqp_config"
+		                         ref="test_queue" 
+		                         queueDurable="true"
+		                         exchangeDurable="true"  />
+		                         
+		                         
+		 <logger message="Exit point for get:/start" level="INFO" doc:name="Logger"/>
+		                         
+    </flow>
+    
+    
+   
+    <flow name="InboundQueue" processingStrategy="synchronous">
+    
+      	 <amqp:inbound-endpoint responseTimeout="10000" numberOfChannels="10"
+		                         doc:name="Receive Direct Message"
+		                         connector-ref="amqp_config"
+		                         ref="test_queue" 
+		                         queueDurable="true"
+		                         exchangeDurable="true"  />
+
+      <logger message="***Entry point for InboundQueue" level="INFO" doc:name="Logger"/>
+
+       <object-to-string-transformer doc:name="Object to String"/>
+       <logger message="***Inbound message - #[payload]" level="INFO" doc:name="Logger"/>
+       
+       <expression-component doc:name="delay">
+              <![CDATA[ Thread.sleep(5000);]]>
+       </expression-component>
+       
+       <logger message="***Exit point for InboundQueue" level="INFO" doc:name="Logger"/>
+
+       
+    </flow>
+     
+  
+    
+    
+    <flow name="ReturnMessageProcessor">
+       <vm:inbound-endpoint exchange-pattern="one-way" path="flow.returnedMessages" />
+    
+       <logger message="Returned message - #[payload]" level="INFO" doc:name="Logger"/>
+       
+    </flow>
+    
+    
+    <apikit:mapping-exception-strategy name="apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="500">
+            <apikit:exception value="java.lang.Exception" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Server Error&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+    
+</mule>

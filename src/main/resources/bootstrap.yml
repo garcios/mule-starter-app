@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: mule-starter-app
+  cloud:
+    config:
+      uri: http://localhost:8888    

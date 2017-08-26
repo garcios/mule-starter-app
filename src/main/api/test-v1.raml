@@ -1,0 +1,29 @@
+#%RAML 0.8
+title: Example-API
+version: v1
+baseUri: http://localhost:8080/api/v1/test
+
+/start:
+  displayName: Start here
+  get:
+    description: Test 
+    headers:
+    
+    queryParameters:
+      myMessage:
+        displayName: myMessage
+        type: string
+        description: Message to send
+        example: Test 123
+        required: true
+    
+    responses:
+        200:
+          body:
+            application/json:
+              example: |
+                {
+                  "title": "Results",
+                  "detail": "Test successful"
+                }
+ 
