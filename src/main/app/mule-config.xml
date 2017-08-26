@@ -41,6 +41,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
        virtualHost="/"
        username="guest"
        password="guest"
+       ackMode="MANUAL"
     />
     
     <amqp:endpoint name="test_queue"
@@ -95,7 +96,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
    
     <flow name="InboundQueue" processingStrategy="synchronous">
     
-      	 <amqp:inbound-endpoint responseTimeout="10000" numberOfChannels="10"
+      <amqp:inbound-endpoint responseTimeout="10000" numberOfChannels="100"
 		                         doc:name="Receive Direct Message"
 		                         connector-ref="amqp_config"
 		                         ref="test_queue" 
@@ -110,6 +111,12 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
        <expression-component doc:name="delay">
               <![CDATA[ Thread.sleep(5000);]]>
        </expression-component>
+       
+       <amqp:acknowledge-message />
+       
+       <!-- when error
+          <amqp:reject-message requeue="true" />
+        -->
        
        <logger message="***Exit point for InboundQueue" level="INFO" doc:name="Logger"/>
 
