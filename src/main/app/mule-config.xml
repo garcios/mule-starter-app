@@ -57,6 +57,9 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     
     <vm:endpoint name="flowReturnedMessageChannel" path="flow.returnedMessages" />
     
+    
+    <queued-asynchronous-processing-strategy name="allowMultiThreads" maxThreads="100"/>
+    
     <!-- Start of the flows -->
     <flow name="main">
         <http:listener config-ref="httpListenerConfig" path="/api/v1/test/*" doc:name="HTTP" />
@@ -94,7 +97,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     
     
    
-    <flow name="InboundQueue" processingStrategy="synchronous">
+    <flow name="InboundQueue" processingStrategy="allowMultiThreads">
     
       <amqp:inbound-endpoint responseTimeout="10000" numberOfChannels="100"
 		                         doc:name="Receive Direct Message"
