@@ -41,7 +41,8 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
        virtualHost="myApp"
        username="myUser"
        password="myUser123"
-       ackMode="MANUAL"
+       numberOfChannels="100"
+       ackMode="MANUAL" 
     />
     
     <amqp:endpoint name="myApp_queue"
@@ -51,7 +52,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
                    exchangeType="direct"
                    responseTimeout="10000"
                    queueDurable="true"
-                   doc:name="AMQP"
+                   doc:name="AMQP"  
            
     />              
     
@@ -83,7 +84,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
          </amqp:return-handler>
   
   
-		 <amqp:outbound-endpoint responseTimeout="10000"
+		 <amqp:outbound-endpoint responseTimeout="10000" 
 		                         doc:name="Send Direct Message"
 		                         connector-ref="amqp_config"
 		                         ref="myApp_queue" 
@@ -99,7 +100,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
    
     <flow name="InboundQueue" processingStrategy="allowMultiThreads">
     
-      <amqp:inbound-endpoint responseTimeout="10000" numberOfChannels="100"
+      <amqp:inbound-endpoint responseTimeout="10000" 
 		                         doc:name="Receive Direct Message"
 		                         connector-ref="amqp_config"
 		                         ref="myApp_queue" 
