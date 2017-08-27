@@ -47,8 +47,9 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
        username="myUser"
        password="myUser123"
        numberOfChannels="200"
-       prefetchCount="1"
+       prefetchCount="1" 
        ackMode="MANUAL" 
+       deliveryMode="PERSISTENT"
     />
     
     <amqp:endpoint name="myApp_queue"
@@ -57,7 +58,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
                    routingKey="myApp_queue"
                    exchangeType="direct"
                    responseTimeout="10000"
-                   queueDurable="true"
+                   queueDurable="true" 
                    doc:name="AMQP"  
            
     />              
