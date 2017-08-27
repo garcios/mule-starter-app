@@ -131,7 +131,9 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
        
        <json:json-to-object-transformer name="messageDTO" returnClass="org.oscar.dto.MessageDTO"/>
        
-       <expression-transformer expression="#[payload.setRetryCount('1');payload]"	 doc:name="Expression" />
+       <set-variable variableName="retryCount" value="#[payload.getRetryCount()]" doc:name="Variable"/>
+        
+       <expression-transformer expression="#[payload.incrRetryCount();payload]"	 doc:name="Expression" />
       
        <json:object-to-json-transformer doc:name="Object to JSON"/>
        <object-to-string-transformer doc:name="Object to String"/>
@@ -143,14 +145,26 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
        </expression-component>
        
      
-       <amqp:acknowledge-message />
+ 
+       <choice doc:name="Choice">
+            <when expression="#[flowVars.retryCount &lt; 3]">
+                 <logger message="***Requeue message" level="INFO" doc:name="Logger"/>
+       			<amqp:reject-message requeue="false" />
+       			<amqp:outbound-endpoint responseTimeout="10000" 
+		                         doc:name="Send Direct Message"
+		                         connector-ref="amqp_config"
+		                         ref="myApp_queue" 
+		                         queueDurable="true"
+		                         exchangeDurable="true"  />
+		                         
+            </when>
+            <otherwise>
+                <logger message="***ACK message" level="INFO" doc:name="Logger"/>
+               <amqp:acknowledge-message />
+            </otherwise>
+        </choice>
        
   
-       
-       
-       <!-- when error
-          <amqp:reject-message requeue="true" />
-        -->
        
        <logger message="***Exit point for InboundQueue" level="INFO" doc:name="Logger"/>
 

@@ -14,8 +14,13 @@ public class MessageDTO {
 	public int getRetryCount() {
 		return retryCount;
 	}
+	
 	public void setRetryCount(int retryCount) {
 		this.retryCount = retryCount;
 	}
-	
+
+	public void incrRetryCount() {
+		this.retryCount ++;
+	}
+
 }
