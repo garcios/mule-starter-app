@@ -46,7 +46,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
        virtualHost="myApp"
        username="myUser"
        password="myUser123"
-       numberOfChannels="100"
+       numberOfChannels="200"
        prefetchCount="1"
        ackMode="MANUAL" 
     />
@@ -144,8 +144,9 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
               <![CDATA[ Thread.sleep(5000);]]>
        </expression-component>
        
-     
+      
  
+        <!-- 
        <choice doc:name="Choice">
             <when expression="#[flowVars.retryCount &lt; 3]">
                  <logger message="***Requeue message" level="INFO" doc:name="Logger"/>
@@ -163,9 +164,9 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
                <amqp:acknowledge-message />
             </otherwise>
         </choice>
-       
+        -->
   
-       
+       <amqp:acknowledge-message />
        <logger message="***Exit point for InboundQueue" level="INFO" doc:name="Logger"/>
 
        
