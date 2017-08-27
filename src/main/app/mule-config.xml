@@ -31,7 +31,12 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         <http:worker-threading-profile threadWaitTimeout="30000" maxThreadsActive="100" maxBufferSize="50" />
     </http:listener-config>
     
-    
+   	<configuration defaultResponseTimeout="90000" doc:name="Configuration">
+        <expression-language>
+            <import class="org.oscar.dto.MessageDTO"/>
+            <global-functions file="myFunc.mel"/>
+        </expression-language>
+    </configuration>
     
     
     <!-- AMQP configurations -->
@@ -42,6 +47,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
        username="myUser"
        password="myUser123"
        numberOfChannels="100"
+       prefetchCount="1"
        ackMode="MANUAL" 
     />
     
@@ -75,7 +81,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 		 
 		 <set-variable variableName="myMessage" value="#[message.inboundProperties.'http.query.params'.myMessage]" doc:name="Variable"/>
 		 
-		 <set-payload value="#[myMessage]" doc:name="Set Payload" />
+		 
 		
 		<logger message="sending - #[myMessage]" level="INFO" doc:name="Logger"/>
 		
@@ -83,6 +89,18 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
                <vm:outbound-endpoint ref="flowReturnedMessageChannel" />
          </amqp:return-handler>
   
+         <expression-component doc:name="delay">
+              <![CDATA[ dto = new MessageDTO();
+                        dto.setMessage(flowVars['myMessage']);
+                        dto.setRetryCount(0);
+                        payload = dto;
+              
+              ]]>
+         </expression-component>
+       
+  
+         <json:object-to-json-transformer doc:name="Object to JSON"/>
+         <object-to-string-transformer doc:name="Object to String"/>
   
 		 <amqp:outbound-endpoint responseTimeout="10000" 
 		                         doc:name="Send Direct Message"
@@ -105,18 +123,30 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 		                         connector-ref="amqp_config"
 		                         ref="myApp_queue" 
 		                         queueDurable="true"
-		                         exchangeDurable="true"  />
+		                         exchangeDurable="true"   />
 
       <logger message="***Entry point for InboundQueue" level="INFO" doc:name="Logger"/>
 
        <object-to-string-transformer doc:name="Object to String"/>
+       
+       <json:json-to-object-transformer name="messageDTO" returnClass="org.oscar.dto.MessageDTO"/>
+       
+       <expression-transformer expression="#[payload.setRetryCount('1');payload]"	 doc:name="Expression" />
+      
+       <json:object-to-json-transformer doc:name="Object to JSON"/>
+       <object-to-string-transformer doc:name="Object to String"/>
+       
        <logger message="***Inbound message - #[payload]" level="INFO" doc:name="Logger"/>
        
        <expression-component doc:name="delay">
               <![CDATA[ Thread.sleep(5000);]]>
        </expression-component>
        
+     
        <amqp:acknowledge-message />
+       
+  
+       
        
        <!-- when error
           <amqp:reject-message requeue="true" />
