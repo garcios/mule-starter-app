@@ -38,16 +38,16 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     <amqp:connector name="amqp_config"
        host="188.166.186.228"
        port="5672"
-       virtualHost="/"
-       username="guest"
-       password="guest"
+       virtualHost="myApp"
+       username="myUser"
+       password="myUser123"
        ackMode="MANUAL"
     />
     
-    <amqp:endpoint name="test_queue"
+    <amqp:endpoint name="myApp_queue"
                    exchangeName="amq.direct"
-                   queueName="test_queue"
-                   routingKey="test_queue"
+                   queueName="myApp_queue"
+                   routingKey="myApp_queue"
                    exchangeType="direct"
                    responseTimeout="10000"
                    queueDurable="true"
@@ -86,7 +86,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 		 <amqp:outbound-endpoint responseTimeout="10000"
 		                         doc:name="Send Direct Message"
 		                         connector-ref="amqp_config"
-		                         ref="test_queue" 
+		                         ref="myApp_queue" 
 		                         queueDurable="true"
 		                         exchangeDurable="true"  />
 		                         
@@ -102,7 +102,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
       <amqp:inbound-endpoint responseTimeout="10000" numberOfChannels="100"
 		                         doc:name="Receive Direct Message"
 		                         connector-ref="amqp_config"
-		                         ref="test_queue" 
+		                         ref="myApp_queue" 
 		                         queueDurable="true"
 		                         exchangeDurable="true"  />
 
