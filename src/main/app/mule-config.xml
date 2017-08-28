@@ -50,7 +50,10 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
        prefetchCount="1" 
        ackMode="MANUAL" 
        deliveryMode="PERSISTENT"
-    />
+    >
+     <reconnect-forever frequency="1000" blocking="true"/>
+     
+    </amqp:connector>
     
     <amqp:endpoint name="myApp_queue"
                    exchangeName="amq.direct"
